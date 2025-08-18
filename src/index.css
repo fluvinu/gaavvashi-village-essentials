@@ -2,39 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* GaavVashi Design System - Village-inspired earthy palette */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core background and text colors */
+    --background: 45 20% 97%;
+    --foreground: 25 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Village earth tones */
+    --earth-brown: 25 35% 25%;
+    --warm-brown: 30 25% 35%;
+    --village-green: 120 30% 25%;
+    --forest-green: 150 40% 20%;
+    --cream: 45 30% 92%;
+    --golden: 45 60% 70%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Gradients */
+    --gradient-earth: linear-gradient(135deg, hsl(25, 35%, 25%), hsl(30, 25%, 35%));
+    --gradient-village: linear-gradient(135deg, hsl(120, 30%, 25%), hsl(150, 40%, 20%));
+    --gradient-warm: linear-gradient(45deg, hsl(45, 60%, 70%), hsl(30, 50%, 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(25, 35%, 25%) 0%, hsl(120, 30%, 25%) 100%);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Design system semantic tokens */
+    --background: 45 20% 97%;
+    --foreground: 25 15% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --card: 45 30% 92%;
+    --card-foreground: 25 15% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --popover: 45 30% 92%;
+    --popover-foreground: 25 15% 15%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --primary: 25 35% 25%;
+    --primary-foreground: 45 30% 92%;
+
+    --secondary: 120 30% 25%;
+    --secondary-foreground: 45 30% 92%;
+
+    --muted: 45 15% 85%;
+    --muted-foreground: 25 15% 45%;
+
+    --accent: 45 60% 70%;
+    --accent-foreground: 25 35% 25%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 45 15% 85%;
+    --input: 45 15% 85%;
+    --ring: 25 35% 25%;
 
     --radius: 0.5rem;
 

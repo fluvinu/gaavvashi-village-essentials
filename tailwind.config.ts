@@ -24,6 +24,14 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// GaavVashi village color palette
+				'earth-brown': 'hsl(var(--earth-brown))',
+				'warm-brown': 'hsl(var(--warm-brown))',
+				'village-green': 'hsl(var(--village-green))',
+				'forest-green': 'hsl(var(--forest-green))',
+				'cream': 'hsl(var(--cream))',
+				'golden': 'hsl(var(--golden))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
