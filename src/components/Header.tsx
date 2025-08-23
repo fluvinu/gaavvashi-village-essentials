@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, User, Menu, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -11,6 +13,7 @@ import {
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const { state } = useCart();
   const navigate = useNavigate();
 
   const handleAuthAction = () => {
@@ -72,8 +75,21 @@ const Header = () => {
               <span className="hidden sm:ml-2 sm:block">Login</span>
             </Button>
           )}
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate('/cart')}
+            className="relative"
+          >
             <ShoppingCart className="h-4 w-4" />
+            {state.items.length > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs"
+              >
+                {state.items.length}
+              </Badge>
+            )}
             <span className="hidden sm:ml-2 sm:block">Cart</span>
           </Button>
           <Button variant="ghost" size="sm" className="md:hidden">
