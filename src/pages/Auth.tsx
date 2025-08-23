@@ -16,7 +16,13 @@ const Auth = () => {
   const { toast } = useToast();
 
   const [signInData, setSignInData] = useState({ email: '', password: '' });
-  const [signUpData, setSignUpData] = useState({ email: '', password: '', fullName: '' });
+  const [signUpData, setSignUpData] = useState({ 
+    email: '', 
+    password: '', 
+    fullName: '',
+    phone: '',
+    address: ''
+  });
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +50,13 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+    const { error } = await signUp(
+      signUpData.email, 
+      signUpData.password, 
+      signUpData.fullName,
+      signUpData.phone,
+      signUpData.address
+    );
     
     if (error) {
       toast({
@@ -142,6 +154,30 @@ const Auth = () => {
                       onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
                       required
                       className="border-earth-200 focus:border-earth-400"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-phone">Phone Number</Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      value={signUpData.phone}
+                      onChange={(e) => setSignUpData({ ...signUpData, phone: e.target.value })}
+                      required
+                      className="border-earth-200 focus:border-earth-400"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-address">Address</Label>
+                    <Input
+                      id="signup-address"
+                      type="text"
+                      value={signUpData.address}
+                      onChange={(e) => setSignUpData({ ...signUpData, address: e.target.value })}
+                      required
+                      className="border-earth-200 focus:border-earth-400"
+                      placeholder="Enter your address"
                     />
                   </div>
                   <div className="space-y-2">

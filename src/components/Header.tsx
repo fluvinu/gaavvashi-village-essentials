@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, User, Menu, LogOut } from "lucide-react";
+import { ShoppingCart, User, Menu, LogOut, Package } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -92,6 +92,16 @@ const Header = () => {
             )}
             <span className="hidden sm:ml-2 sm:block">Cart</span>
           </Button>
+          {user && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/my-orders')}
+            >
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:ml-2 sm:block">Orders</span>
+            </Button>
+          )}
           <Button variant="ghost" size="sm" className="md:hidden">
             <Menu className="h-4 w-4" />
           </Button>

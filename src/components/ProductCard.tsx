@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star, Check } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -25,9 +26,12 @@ const ProductCard = ({
   inStock 
 }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(id, 1);
+  const handleAddToCart = async () => {
+    await addToCart(id, 1);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
   };
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-card border-border">
@@ -63,10 +67,23 @@ const ProductCard = ({
             size="sm" 
             disabled={!inStock}
             onClick={handleAddToCart}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            className={`transition-colors ${
+              isAdded 
+                ? "bg-green-600 hover:bg-green-700 text-white" 
+                : "bg-primary hover:bg-primary/90 text-primary-foreground"
+            }`}
           >
-            <ShoppingCart className="h-4 w-4 mr-1" />
-            Add
+            {isAdded ? (
+              <>
+                <Check className="h-4 w-4 mr-1" />
+                Added
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 mr-1" />
+                Add
+              </>
+            )}
           </Button>
         </div>
       </CardContent>
