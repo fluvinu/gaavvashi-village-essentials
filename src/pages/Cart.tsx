@@ -88,6 +88,35 @@ const Cart = () => {
 
       if (itemsError) throw itemsError;
 
+      // Reduce stock quantity for each product
+      for (const item of state.items) {
+        // First get current stock quantity
+        const { data: productData, error: fetchError } = await supabase
+          .from('products')
+          .select('stock_quantity')
+          .eq('id', item.product_id)
+          .single();
+
+        if (fetchError) {
+          console.error('Error fetching product stock:', fetchError);
+          continue;
+        }
+
+        const newStockQuantity = Math.max(0, (productData?.stock_quantity || 0) - item.quantity);
+        
+        const { error: stockError } = await supabase
+          .from('products')
+          .update({ 
+            stock_quantity: newStockQuantity,
+            in_stock: newStockQuantity > 0
+          })
+          .eq('id', item.product_id);
+        
+        if (stockError) {
+          console.error('Error updating stock:', stockError);
+        }
+      }
+
       // Clear cart
       await clearCart();
 

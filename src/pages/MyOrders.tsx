@@ -3,8 +3,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Package, Calendar, CreditCard } from 'lucide-react';
+import { Loader2, Package, Calendar, CreditCard, X } from 'lucide-react';
 
 interface OrderItem {
   id: string;
@@ -64,6 +65,39 @@ const MyOrders = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const canCancelOrder = (createdAt: string) => {
+    const orderTime = new Date(createdAt);
+    const currentTime = new Date();
+    const sixHoursInMs = 6 * 60 * 60 * 1000;
+    return (currentTime.getTime() - orderTime.getTime()) < sixHoursInMs;
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Order Cancelled",
+        description: "Your order has been cancelled successfully",
+      });
+
+      // Refresh orders list
+      fetchOrders();
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel order",
+        variant: "destructive",
+      });
     }
   };
 
@@ -140,6 +174,30 @@ const MyOrders = () => {
                           ₹{order.total_amount}
                         </span>
                       </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {order.status === 'pending' && canCancelOrder(order.created_at) && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleCancelOrder(order.id)}
+                          className="flex items-center gap-1"
+                        >
+                          <X className="h-4 w-4" />
+                          Cancel Order
+                        </Button>
+                      )}
+                      {order.status === 'pending' && !canCancelOrder(order.created_at) && (
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          disabled
+                          className="flex items-center gap-1"
+                        >
+                          <X className="h-4 w-4" />
+                          Cannot Cancel
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
