@@ -77,6 +77,15 @@ const MyOrders = () => {
 
   const handleCancelOrder = async (orderId: string) => {
     try {
+      // First get all order items for this order
+      const { data: orderItems, error: fetchError } = await supabase
+        .from('order_items')
+        .select('product_id, quantity')
+        .eq('order_id', orderId);
+
+      if (fetchError) throw fetchError;
+
+      // Cancel the order
       const { error } = await supabase
         .from('orders')
         .update({ status: 'cancelled' })
@@ -84,9 +93,40 @@ const MyOrders = () => {
 
       if (error) throw error;
 
+      // Restore stock quantities for each product
+      if (orderItems) {
+        for (const item of orderItems) {
+          // Get current stock quantity
+          const { data: productData, error: productFetchError } = await supabase
+            .from('products')
+            .select('stock_quantity')
+            .eq('id', item.product_id)
+            .maybeSingle();
+
+          if (productFetchError) {
+            console.error('Error fetching product stock:', productFetchError);
+            continue;
+          }
+
+          const newStockQuantity = (productData?.stock_quantity || 0) + item.quantity;
+          
+          const { error: stockError } = await supabase
+            .from('products')
+            .update({ 
+              stock_quantity: newStockQuantity,
+              in_stock: true
+            })
+            .eq('id', item.product_id);
+          
+          if (stockError) {
+            console.error('Error restoring stock:', stockError);
+          }
+        }
+      }
+
       toast({
         title: "Order Cancelled",
-        description: "Your order has been cancelled successfully",
+        description: "Your order has been cancelled and stock has been restored",
       });
 
       // Refresh orders list
