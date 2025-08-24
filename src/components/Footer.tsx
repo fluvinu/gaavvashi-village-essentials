@@ -14,15 +14,21 @@ const Footer = () => {
               Experience the purity and tradition of rural India.
             </p>
             <div className="flex space-x-2">
+              <a href="https://facebook.com/fluvinu" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-cream hover:text-golden hover:bg-warm-brown">
                 <Facebook className="h-4 w-4" />
               </Button>
+              </a>
+              <a href="https://instagram.com/fluvinu" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-cream hover:text-golden hover:bg-warm-brown">
                 <Instagram className="h-4 w-4" />
               </Button>
+              </a>
+              <a href="https://x.com/fluvinuofficial" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-cream hover:text-golden hover:bg-warm-brown">
                 <Twitter className="h-4 w-4" />
               </Button>
+              </a>
             </div>
           </div>
 
@@ -34,7 +40,7 @@ const Footer = () => {
               <li><a href="#products" className="text-cream/80 hover:text-golden transition-colors">Products</a></li>
               <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">About Us</a></li>
               <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">Contact</a></li>
-              <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">My Orders</a></li>
+              <li><a href="/my-orders" className="text-cream/80 hover:text-golden transition-colors" >My Orders</a></li>
             </ul>
           </div>
 
@@ -46,7 +52,6 @@ const Footer = () => {
               <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">Organic Grains</a></li>
               <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">Natural Sweeteners</a></li>
               <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">Pulses & Lentils</a></li>
-              <li><a href="#" className="text-cream/80 hover:text-golden transition-colors">Traditional Items</a></li>
             </ul>
           </div>
 
@@ -56,15 +61,15 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-golden" />
-                <span className="text-cream/80 text-sm">Village Markets, Rural India</span>
+                <span className="text-cream/80 text-sm">Village Mohad Mp, Rural India</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-golden" />
-                <span className="text-cream/80 text-sm">+91 98765 43210</span>
+                <span className="text-cream/80 text-sm">+91 6262751969</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-golden" />
-                <span className="text-cream/80 text-sm">hello@gaavvashi.com</span>
+                <span className="text-cream/80 text-sm">siddharthshivwanshi@gmail.com</span>
               </div>
             </div>
           </div>
@@ -73,6 +78,9 @@ const Footer = () => {
         <div className="border-t border-warm-brown mt-8 pt-8 text-center">
           <p className="text-cream/60 text-sm">
             © 2024 GaavVashi. All rights reserved. Bringing village goodness to your home.
+          </p>
+          <p className="text-cream/60 text-xs mt-2">
+            Evolved by Fluvinu with <span className="text-golden">{"<3"}</span>
           </p>
         </div>
       </div>
