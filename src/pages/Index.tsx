@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Categories from "@/components/Categories";
 import ProductShowcase from "@/components/ProductShowcase";
 import Footer from "@/components/Footer";
+import ChatWidget from "@/components/ChatWidget";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <Categories />
       <ProductShowcase />
       <Footer />
+      <ChatWidget />
     </div>
   );
 };
