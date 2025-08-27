@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   id: string;
@@ -14,6 +15,7 @@ interface Message {
 }
 
 const ChatWidget = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -59,7 +61,11 @@ const ChatWidget = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('chat-with-gemini', {
-        body: { message: inputMessage }
+        body: { 
+          message: inputMessage,
+          userId: user?.id,
+          isAuthenticated: !!user
+        }
       });
 
       if (error) throw error;
