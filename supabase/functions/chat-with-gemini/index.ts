@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log('Chat-with-gemini function called');
+  console.log('=== Chat function started ===');
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -16,23 +16,33 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, isAuthenticated } = await req.json();
-    console.log('Request received:', { message: message?.substring(0, 50), userId, isAuthenticated });
+    const requestBody = await req.json();
+    const { message, userId, isAuthenticated } = requestBody;
+    console.log('Request data:', { 
+      hasMessage: !!message, 
+      messageLength: message?.length || 0,
+      userId: userId?.substring(0, 8) + '...',
+      isAuthenticated 
+    });
 
-    if (!message) {
-      throw new Error('Message is required');
+    if (!message || typeof message !== 'string') {
+      throw new Error('Valid message is required');
     }
 
+    // Get API key with extensive debugging
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    console.log('Environment variables check:', {
-      hasGeminiKey: !!geminiApiKey,
-      keyLength: geminiApiKey?.length || 0,
-      allEnvKeys: Object.keys(Deno.env.toObject())
-    });
+    const allEnvVars = Deno.env.toObject();
     
-    if (!geminiApiKey) {
-      console.error('GEMINI_API_KEY environment variable is not set');
-      throw new Error('GEMINI_API_KEY is not configured. Please check the function secrets.');
+    console.log('=== Environment Debug ===');
+    console.log('Has GEMINI_API_KEY:', !!geminiApiKey);
+    console.log('Key length:', geminiApiKey?.length || 0);
+    console.log('All env keys:', Object.keys(allEnvVars));
+    console.log('Key starts with:', geminiApiKey?.substring(0, 10) || 'NO_KEY');
+    
+    if (!geminiApiKey || geminiApiKey.trim() === '') {
+      const errorMsg = 'GEMINI_API_KEY is not properly configured in Supabase secrets';
+      console.error('❌', errorMsg);
+      throw new Error(errorMsg);
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
