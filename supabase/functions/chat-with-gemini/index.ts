@@ -21,8 +21,10 @@ serve(async (req) => {
     }
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    console.log('Checking for GEMINI_API_KEY...', geminiApiKey ? 'Found' : 'Not found');
     if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY is not set');
+      console.error('GEMINI_API_KEY environment variable is not set');
+      throw new Error('GEMINI_API_KEY is not configured. Please check the function secrets.');
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
