@@ -8,6 +8,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Chat-with-gemini function called');
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -15,13 +17,19 @@ serve(async (req) => {
 
   try {
     const { message, userId, isAuthenticated } = await req.json();
+    console.log('Request received:', { message: message?.substring(0, 50), userId, isAuthenticated });
 
     if (!message) {
       throw new Error('Message is required');
     }
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    console.log('Checking for GEMINI_API_KEY...', geminiApiKey ? 'Found' : 'Not found');
+    console.log('Environment variables check:', {
+      hasGeminiKey: !!geminiApiKey,
+      keyLength: geminiApiKey?.length || 0,
+      allEnvKeys: Object.keys(Deno.env.toObject())
+    });
+    
     if (!geminiApiKey) {
       console.error('GEMINI_API_KEY environment variable is not set');
       throw new Error('GEMINI_API_KEY is not configured. Please check the function secrets.');
