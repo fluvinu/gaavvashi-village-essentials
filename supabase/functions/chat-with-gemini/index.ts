@@ -79,12 +79,25 @@ Deno.serve(async (req: Request) => {
     console.log('Request data:', { 
       hasMessage: !!message, 
       messageLength: message?.length || 0,
-      userId: userId?.substring(0, 8) + '...',
+      userId: userId ? userId.substring(0, 8) + '...' : 'none',
       isAuthenticated 
     });
 
     if (!message || typeof message !== 'string') {
       throw new Error('Valid message is required');
+    }
+
+    // Debug environment variables
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    console.log('=== Environment Debug ===');
+    console.log('Has GEMINI_API_KEY:', !!geminiApiKey);
+    console.log('Key length:', geminiApiKey?.length || 0);
+    console.log('Key starts with:', geminiApiKey?.substring(0, 10) || 'NO_KEY');
+    
+    if (!geminiApiKey || geminiApiKey.trim() === '') {
+      const errorMsg = 'GEMINI_API_KEY is not properly configured in Supabase secrets';
+      console.error('❌', errorMsg);
+      throw new Error(errorMsg);
     }
 
     // Query relevant products from database
@@ -177,15 +190,6 @@ ${orderItems.map((item: OrderItem) => `
 
 Please respond naturally and helpfully to questions about products, customers, orders, sales analytics, inventory management, or any business-related queries. Be conversational and provide specific information with relevant data from the database.
 `;
-
-    // Get API key
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    
-    if (!geminiApiKey || geminiApiKey.trim() === '') {
-      const errorMsg = 'GEMINI_API_KEY is not properly configured in Supabase secrets';
-      console.error('❌', errorMsg);
-      throw new Error(errorMsg);
-    }
 
     console.log('Calling Gemini API...');
 
