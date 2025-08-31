@@ -8,6 +8,8 @@ const corsHeaders = {
 
 interface RequestPayload {
   message: string;
+  userId?: string;
+  isAuthenticated?: boolean;
 }
 
 interface Product {
@@ -71,9 +73,15 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user message
-    const { message }: RequestPayload = await req.json();
-    console.log('Processing message:', message);
+    // Get request data (ChatWidget sends message, userId, isAuthenticated)
+    const requestBody = await req.json();
+    const { message, userId, isAuthenticated } = requestBody;
+    console.log('Request data:', { 
+      hasMessage: !!message, 
+      messageLength: message?.length || 0,
+      userId: userId?.substring(0, 8) + '...',
+      isAuthenticated 
+    });
 
     if (!message || typeof message !== 'string') {
       throw new Error('Valid message is required');
