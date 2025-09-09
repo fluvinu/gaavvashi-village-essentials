@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,9 +12,11 @@ import { Leaf } from 'lucide-react';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(false);
   const { signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({ 
@@ -24,6 +27,18 @@ const Auth = () => {
     address: ''
   });
   const [resetEmail, setResetEmail] = useState('');
+  const [newPasswordData, setNewPasswordData] = useState({ 
+    password: '', 
+    confirmPassword: '' 
+  });
+
+  useEffect(() => {
+    // Check if this is a password recovery flow
+    const type = searchParams.get('type');
+    if (type === 'recovery') {
+      setIsRecovery(true);
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +111,40 @@ const Auth = () => {
     setLoading(false);
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (newPasswordData.password !== newPasswordData.confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Password mismatch",
+        description: "Passwords do not match."
+      });
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPasswordData.password
+    });
+    
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Password update failed",
+        description: error.message
+      });
+    } else {
+      toast({
+        title: "Password updated!",
+        description: "Your password has been successfully updated."
+      });
+      navigate('/');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -109,146 +158,187 @@ const Auth = () => {
 
         <Card className="bg-white/80 backdrop-blur-sm border-earth-200">
           <CardHeader className="text-center">
-            <CardTitle className="text-earth-800">Welcome</CardTitle>
+            <CardTitle className="text-earth-800">
+              {isRecovery ? "Update Password" : "Welcome"}
+            </CardTitle>
             <CardDescription className="text-earth-600">
-              Sign in to your account or create a new one
+              {isRecovery 
+                ? "Enter your new password" 
+                : "Sign in to your account or create a new one"
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                <TabsTrigger value="reset">Reset</TabsTrigger>
-              </TabsList>
+            {isRecovery ? (
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPasswordData.password}
+                    onChange={(e) => setNewPasswordData({ ...newPasswordData, password: e.target.value })}
+                    required
+                    className="border-earth-200 focus:border-earth-400"
+                    placeholder="Enter your new password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={newPasswordData.confirmPassword}
+                    onChange={(e) => setNewPasswordData({ ...newPasswordData, confirmPassword: e.target.value })}
+                    required
+                    className="border-earth-200 focus:border-earth-400"
+                    placeholder="Confirm your new password"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-earth-600 hover:bg-earth-700" 
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
+                </Button>
+              </form>
+            ) : (
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsTrigger value="reset">Reset</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="signin" className="mt-6">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      value={signInData.email}
-                      onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      value={signInData.password}
-                      onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-earth-600 hover:bg-earth-700" 
-                    disabled={loading}
-                  >
-                    {loading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
-              </TabsContent>
+                <TabsContent value="signin" className="mt-6">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        value={signInData.email}
+                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">Password</Label>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        value={signInData.password}
+                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-earth-600 hover:bg-earth-700" 
+                      disabled={loading}
+                    >
+                      {loading ? 'Signing in...' : 'Sign In'}
+                    </Button>
+                  </form>
+                </TabsContent>
 
-              <TabsContent value="signup" className="mt-6">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      value={signUpData.fullName}
-                      onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Phone Number</Label>
-                    <Input
-                      id="signup-phone"
-                      type="tel"
-                      value={signUpData.phone}
-                      onChange={(e) => setSignUpData({ ...signUpData, phone: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-address">Address</Label>
-                    <Input
-                      id="signup-address"
-                      type="text"
-                      value={signUpData.address}
-                      onChange={(e) => setSignUpData({ ...signUpData, address: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                      placeholder="Enter your address"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={signUpData.password}
-                      onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-earth-600 hover:bg-earth-700" 
-                    disabled={loading}
-                  >
-                    {loading ? 'Creating account...' : 'Sign Up'}
-                  </Button>
-                </form>
-              </TabsContent>
+                <TabsContent value="signup" className="mt-6">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">Full Name</Label>
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        value={signUpData.fullName}
+                        onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        value={signUpData.email}
+                        onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-phone">Phone Number</Label>
+                      <Input
+                        id="signup-phone"
+                        type="tel"
+                        value={signUpData.phone}
+                        onChange={(e) => setSignUpData({ ...signUpData, phone: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-address">Address</Label>
+                      <Input
+                        id="signup-address"
+                        type="text"
+                        value={signUpData.address}
+                        onChange={(e) => setSignUpData({ ...signUpData, address: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                        placeholder="Enter your address"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Password</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        value={signUpData.password}
+                        onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-earth-600 hover:bg-earth-700" 
+                      disabled={loading}
+                    >
+                      {loading ? 'Creating account...' : 'Sign Up'}
+                    </Button>
+                  </form>
+                </TabsContent>
 
-              <TabsContent value="reset" className="mt-6">
-                <form onSubmit={handleResetPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email</Label>
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      required
-                      className="border-earth-200 focus:border-earth-400"
-                      placeholder="Enter your email address"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-earth-600 hover:bg-earth-700" 
-                    disabled={loading}
-                  >
-                    {loading ? 'Sending...' : 'Send Reset Email'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="reset" className="mt-6">
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                        className="border-earth-200 focus:border-earth-400"
+                        placeholder="Enter your email address"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-earth-600 hover:bg-earth-700" 
+                      disabled={loading}
+                    >
+                      {loading ? 'Sending...' : 'Send Reset Email'}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            )}
           </CardContent>
         </Card>
       </div>
