@@ -11,7 +11,7 @@ import { Leaf } from 'lucide-react';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,6 +23,7 @@ const Auth = () => {
     phone: '',
     address: ''
   });
+  const [resetEmail, setResetEmail] = useState('');
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +74,28 @@ const Auth = () => {
     setLoading(false);
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await resetPassword(resetEmail);
+    
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Reset failed",
+        description: error.message
+      });
+    } else {
+      toast({
+        title: "Reset email sent!",
+        description: "Please check your email for reset instructions."
+      });
+      setResetEmail('');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -93,9 +116,10 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="reset">Reset</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="mt-6">
@@ -197,6 +221,30 @@ const Auth = () => {
                     disabled={loading}
                   >
                     {loading ? 'Creating account...' : 'Sign Up'}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="reset" className="mt-6">
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      className="border-earth-200 focus:border-earth-400"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-earth-600 hover:bg-earth-700" 
+                    disabled={loading}
+                  >
+                    {loading ? 'Sending...' : 'Send Reset Email'}
                   </Button>
                 </form>
               </TabsContent>
